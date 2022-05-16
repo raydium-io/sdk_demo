@@ -4,7 +4,9 @@
   "main": "src/swap.ts",
   "scripts": {
     "start": "ts-node src/swap.ts",
-    "dev": "ts-node src/swap_dev.ts"
+    "dev": "ts-node src/swap_dev.ts",
+    "lp_dev": "ts-node src/add_liquidity_dev.ts",
+    "lp": "ts-node src/add_liquidity.ts"
   },
   "author": "Carl",
   "license": "MIT",
