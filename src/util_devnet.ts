@@ -403,3 +403,23 @@ export async function fetchPoolKeys(
   };
 }
 
+export async function getRouteRelated(
+  connection:Connection,
+  tokenInMint: PublicKey,
+  tokenOutMint: PublicKey,
+): Promise<LiquidityPoolKeys[]> {
+  if (!tokenInMint || !tokenOutMint) return []
+  const tokenInMintString = tokenInMint.toBase58();
+  const tokenOutMintString  = tokenOutMint.toBase58();
+  const allPoolKeys = await fetchAllPoolKeys(connection);
+
+  const routeMiddleMints:any[] = ['EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', '4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R', 'mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So', '7dHbWXmci3dT8UFYWYZweBLXgycu7Y3iL6trKn1Y7ARj', 'USDH1SM1ojwWUga67PGrgFWUHibbjqMvuMaDkRJTgkX', 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB']
+  const candidateTokenMints = routeMiddleMints.concat([tokenInMintString, tokenOutMintString])
+  const onlyRouteMints = routeMiddleMints.filter((routeMint) => ![tokenInMintString, tokenOutMintString].includes(routeMint))
+  const routeRelated = allPoolKeys.filter((info) => {
+    const isCandidate = candidateTokenMints.includes(info.baseMint.toBase58()) && candidateTokenMints.includes(info.quoteMint.toBase58())
+    const onlyInRoute = onlyRouteMints.includes(info.baseMint.toBase58()) && onlyRouteMints.includes(info.quoteMint.toBase58())
+    return isCandidate && !onlyInRoute
+  })
+  return routeRelated
+}
