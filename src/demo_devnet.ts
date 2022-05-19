@@ -54,11 +54,13 @@ async function getAllAmmPools(connection: Connection){
     const USDC_MINT_ID = toPoolKeys.quoteMint;
     const relatedPoolKeys = await getRouteRelated(connection, FIDA_MINT_ID, USDC_MINT_ID)
 
-    await swap(connection, poolKeys, ownerKeypair, tokenAccounts)
+    const isDevnet = true;
 
-    await addLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
+    await swap({ connection, poolKeys, ownerKeypair, tokenAccounts, isDevnet })
 
-    await removeLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
+    await addLiquidity({ connection, poolKeys, ownerKeypair, tokenAccounts, isDevnet })
+
+    await removeLiquidity({ connection, poolKeys, ownerKeypair, tokenAccounts, isDevnet })
 
     await routeSwap(connection, fromPoolKeys, toPoolKeys, ownerKeypair, tokenAccounts)
 

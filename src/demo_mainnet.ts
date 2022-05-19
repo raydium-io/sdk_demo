@@ -33,11 +33,11 @@ import bs58 from "bs58"
     const USDC_MINT_ID = poolKeys.quoteMint;
     const relatedPoolKeys = await getRouteRelated(connection, FIDA_MINT_ID, USDC_MINT_ID)
 
-    await swap(connection, poolKeys, ownerKeypair, tokenAccounts)
+    await swap({ connection, poolKeys, ownerKeypair, tokenAccounts })
 
-    await addLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
+    await addLiquidity({ connection, poolKeys, ownerKeypair, tokenAccounts })
 
-    await removeLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
+    await removeLiquidity({ connection, poolKeys, ownerKeypair, tokenAccounts })
 
     await routeSwap(connection, fromPoolKeys, poolKeys, ownerKeypair, tokenAccounts)
 

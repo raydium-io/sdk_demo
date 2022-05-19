@@ -26,8 +26,15 @@ export async function getTokenAccountsByOwner(
   return accounts;
 }
 
+export interface TransactionParams {
+  connection: Connection;
+  poolKeys: LiquidityPoolKeys;
+  ownerKeypair: Keypair;
+  tokenAccounts: TokenAccount[];
+  isDevnet? : boolean;
+}
 
-export async function swap(connection: Connection, poolKeys: LiquidityPoolKeys, ownerKeypair: Keypair, tokenAccounts: TokenAccount[]){
+export async function swap({ connection, poolKeys, ownerKeypair, tokenAccounts, isDevnet = false}: TransactionParams) {
   console.log('swap start')
 
   const owner = ownerKeypair.publicKey
@@ -75,12 +82,12 @@ export async function swap(connection: Connection, poolKeys: LiquidityPoolKeys, 
       {skipPreflight: true}
   );
 
-  console.log(`https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+  console.log(`https://explorer.solana.com/tx/${txid}${isDevnet? '?cluster=devnet' : ''}`)
   console.log('swap end')
 }
 
 
-export async function addLiquidity(connection: Connection, poolKeys: LiquidityPoolKeys, ownerKeypair: Keypair, tokenAccounts:TokenAccount[]){
+export async function addLiquidity({ connection, poolKeys, ownerKeypair, tokenAccounts, isDevnet = false}: TransactionParams){
   console.log('addLiquidity start')
 
   const owner = ownerKeypair.publicKey
@@ -119,13 +126,13 @@ export async function addLiquidity(connection: Connection, poolKeys: LiquidityPo
       {skipPreflight: true}
   );
 
-  console.log(`https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+  console.log(`https://explorer.solana.com/tx/${txid}${isDevnet? '?cluster=devnet' : ''}`)
   console.log('addLiquidity end')
 }
 
 
 
-export async function removeLiquidity(connection: Connection, poolKeys: LiquidityPoolKeys, ownerKeypair: Keypair, tokenAccounts:TokenAccount[]){
+export async function removeLiquidity({ connection, poolKeys, ownerKeypair, tokenAccounts, isDevnet = false}: TransactionParams){
   console.log('removeLiquidity start')
   const owner = ownerKeypair.publicKey
   const poolInfo = await Liquidity.fetchInfo({connection, poolKeys})
@@ -153,7 +160,7 @@ export async function removeLiquidity(connection: Connection, poolKeys: Liquidit
         {skipPreflight: true}
     );
 
-    console.log(`https://explorer.solana.com/tx/${txid}?cluster=devnet`)
+    console.log(`https://explorer.solana.com/tx/${txid}${isDevnet? '?cluster=devnet' : ''}`)
   }
   console.log('removeLiquidity end')
 }
