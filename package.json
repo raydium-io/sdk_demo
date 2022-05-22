@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@raydium-io/raydium-sdk": "^1.1.0-beta.0",
-    "@solana/web3.js": "^1.41.3",
+    "@solana/web3.js": "^1.43.1",
     "bs58": "^5.0.0",
     "typescript": "^4.6.3"
   },

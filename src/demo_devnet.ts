@@ -5,7 +5,7 @@ import { Connection, Keypair, PublicKey,} from "@solana/web3.js";
 import bs58 from "bs58"
 
 import {fetchAllPoolKeys, fetchPoolKeys} from "./util_devnet"
-import { getTokenAccountsByOwner, swap, addLiquidity, removeLiquidity } from "./util";
+import { getTokenAccountsByOwner, swap, addLiquidity, removeLiquidity, createWsol } from "./util";
 
 
 async function getAllAmmPools(connection: Connection){
@@ -31,7 +31,9 @@ async function getAllAmmPools(connection: Connection){
     const ownerKeypair = Keypair.fromSecretKey( secretKey )
 
     const owner = ownerKeypair.publicKey;
-    console.log(owner.toString());
+    console.log(owner.toString())
+
+    // await createWsol(connection, ownerKeypair, 0.1)
 
     const tokenAccounts = await getTokenAccountsByOwner(connection, owner)
     console.log("tokenAccounts.length:", tokenAccounts.length)
@@ -39,17 +41,17 @@ async function getAllAmmPools(connection: Connection){
     // await getAllAmmPools(connection)
     
     // SOL-USDT
-    // const POOL_ID = "384zMi9MbUKVUfkUdrnuMfWBwJR9gadSxYimuXeJ9DaJ"
+    const POOL_ID = "384zMi9MbUKVUfkUdrnuMfWBwJR9gadSxYimuXeJ9DaJ"
 
     // RAY_USDC
-    const POOL_ID = "ELSGBb45rAQNsMTVzwjUqL8vBophWhPn4rNbqwxenmqY"
+    // const POOL_ID = "ELSGBb45rAQNsMTVzwjUqL8vBophWhPn4rNbqwxenmqY"
 
     const poolKeys = await fetchPoolKeys(connection, new PublicKey(POOL_ID))
 
     await swap(connection, poolKeys, ownerKeypair, tokenAccounts)
 
-    await addLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
+    // await addLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
 
-    await removeLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
+    // await removeLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
 
 })()
