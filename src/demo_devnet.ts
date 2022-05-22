@@ -48,7 +48,7 @@ async function getAllAmmPools(connection: Connection){
     // RAY_USDC
     const POOL_ID = "ELSGBb45rAQNsMTVzwjUqL8vBophWhPn4rNbqwxenmqY"
 
-    const poolKeys = await fetchPoolKeys(connection, new PublicKey(POOL_ID))
+    const poolKeys = await fetchPoolKeys(connection, new PublicKey(SOL_USDT))
     
 
     await swap(connection, poolKeys, ownerKeypair, tokenAccounts)
@@ -57,15 +57,16 @@ async function getAllAmmPools(connection: Connection){
 
     await removeLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
 
-    const fromPoolKeys = await fetchPoolKeys(connection, new PublicKey(FIDA_SOL))
-    const toPoolKeys = await fetchPoolKeys(connection, new PublicKey(SOL_USDT))
+    /// dev not support routeSwap
+    // const fromPoolKeys = await fetchPoolKeys(connection, new PublicKey(FIDA_SOL))
+    // const toPoolKeys = await fetchPoolKeys(connection, new PublicKey(SOL_USDT))
 
-    const FIDA_MINT_ID = fromPoolKeys.baseMint;
-    const USDC_MINT_ID = toPoolKeys.quoteMint;
-    const relatedPoolKeys = await getRouteRelated(connection, FIDA_MINT_ID, USDC_MINT_ID)
+    // const FIDA_MINT_ID = fromPoolKeys.baseMint;
+    // const USDC_MINT_ID = toPoolKeys.quoteMint;
+    // const relatedPoolKeys = await getRouteRelated(connection, FIDA_MINT_ID, USDC_MINT_ID)
 
-    await routeSwap(connection, fromPoolKeys, toPoolKeys, ownerKeypair, tokenAccounts)
+    // await routeSwap(connection, fromPoolKeys, toPoolKeys, ownerKeypair, tokenAccounts)
 
-    await tradeSwap(connection, FIDA_MINT_ID, USDC_MINT_ID, relatedPoolKeys, ownerKeypair, tokenAccounts)
+    // await tradeSwap(connection, FIDA_MINT_ID, USDC_MINT_ID, relatedPoolKeys, ownerKeypair, tokenAccounts)
 
 })()

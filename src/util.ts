@@ -187,7 +187,7 @@ export async function addLiquidity(connection: Connection, poolKeys: LiquidityPo
   const poolInfo = await Liquidity.fetchInfo({connection, poolKeys})
 
   // real amount = 1000000 / 10**poolInfo.baseDecimals
-  const amount = new TokenAmount(new Token(poolKeys.baseMint, poolInfo.baseDecimals), 1, false)
+  const amount = new TokenAmount(new Token(poolKeys.baseMint, poolInfo.baseDecimals), 0.1, false)
   const anotherCurrency = new Currency(poolInfo.quoteDecimals)
 
   // 5% slippage
@@ -271,7 +271,7 @@ export async function routeSwap(connection: Connection, fromPoolKeys: LiquidityP
   // @ts-ignore
   console.log(`route swap: ${fromPoolKeys.id.toBase58()}, amountIn: ${amountIn.toFixed()}, amountOut: ${amountOut.toFixed()}, executionPrice: ${executionPrice!.toFixed()}`,)
 
-  const { swapTransaction } =
+  const { setupTransaction, swapTransaction } =
     await Route.makeSwapTransaction({
       connection,
       fromPoolKeys,
@@ -285,13 +285,13 @@ export async function routeSwap(connection: Connection, fromPoolKeys: LiquidityP
       fixedSide: "in",
     });
 
-  const txid = await connection.sendTransaction(
-      swapTransaction!.transaction,
-      [...swapTransaction!.signers, ownerKeypair],
-      {skipPreflight: true}
-  );
+  if (setupTransaction){
+    await sendTx(connection, setupTransaction.transaction, [ownerKeypair, ...setupTransaction.signers ])
+  }
 
-  console.log(`https://solscan.io/tx/${txid}`)
+  if (swapTransaction){
+    await sendTx(connection, swapTransaction.transaction, [ownerKeypair, ...swapTransaction.signers ])
+  }
   console.log('route swap end')
 }
 
@@ -332,12 +332,13 @@ export async function tradeSwap(connection: Connection, tokenInMint: PublicKey, 
     fixedSide: 'in',
   })
 
-  const txid = await connection.sendTransaction(
-      tradeTransaction!.transaction,
-      [...tradeTransaction!.signers, ownerKeypair],
-      {skipPreflight: true}
-  );
+  if (setupTransaction){
+    await sendTx(connection, setupTransaction.transaction, [ownerKeypair, ...setupTransaction.signers ])
+  }
 
-  console.log(`https://solscan.io/tx/${txid}?cluster=devnet`)
+  if (tradeTransaction){
+    await sendTx(connection, tradeTransaction.transaction, [ownerKeypair, ...tradeTransaction.signers ])
+  }
+
   console.log('trade swap end')
 }
