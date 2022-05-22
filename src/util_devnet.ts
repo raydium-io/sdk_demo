@@ -403,3 +403,23 @@ export async function fetchPoolKeys(
   };
 }
 
+export async function getRouteRelated(
+  connection:Connection,
+  tokenInMint: PublicKey,
+  tokenOutMint: PublicKey,
+): Promise<LiquidityPoolKeys[]> {
+  if (!tokenInMint || !tokenOutMint) return []
+  const tokenInMintString = tokenInMint.toBase58();
+  const tokenOutMintString  = tokenOutMint.toBase58();
+  const allPoolKeys = await fetchAllPoolKeys(connection);
+
+  const routeMiddleMints:any[] = ['So11111111111111111111111111111111111111112']
+  const candidateTokenMints = routeMiddleMints.concat([tokenInMintString, tokenOutMintString])
+  const onlyRouteMints = routeMiddleMints.filter((routeMint) => ![tokenInMintString, tokenOutMintString].includes(routeMint))
+  const routeRelated = allPoolKeys.filter((info) => {
+    const isCandidate = candidateTokenMints.includes(info.baseMint.toBase58()) && candidateTokenMints.includes(info.quoteMint.toBase58())
+    const onlyInRoute = onlyRouteMints.includes(info.baseMint.toBase58()) && onlyRouteMints.includes(info.quoteMint.toBase58())
+    return isCandidate && !onlyInRoute
+  })
+  return routeRelated
+}

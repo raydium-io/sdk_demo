@@ -4,8 +4,8 @@ import { Connection, Keypair, PublicKey,} from "@solana/web3.js";
 // @ts-ignore
 import bs58 from "bs58"
 
-import {fetchAllPoolKeys, fetchPoolKeys} from "./util_devnet"
-import { getTokenAccountsByOwner, swap, addLiquidity, removeLiquidity, createWsol } from "./util";
+import {fetchAllPoolKeys, fetchPoolKeys, getRouteRelated} from "./util_devnet"
+import { getTokenAccountsByOwner, swap, addLiquidity, removeLiquidity, routeSwap, tradeSwap } from "./util";
 
 
 async function getAllAmmPools(connection: Connection){
@@ -40,18 +40,32 @@ async function getAllAmmPools(connection: Connection){
 
     // await getAllAmmPools(connection)
     
-    // SOL-USDT
-    const POOL_ID = "384zMi9MbUKVUfkUdrnuMfWBwJR9gadSxYimuXeJ9DaJ"
+    const SOL_USDT = "384zMi9MbUKVUfkUdrnuMfWBwJR9gadSxYimuXeJ9DaJ"
+
+    // FIDA-SOL POOL
+    const FIDA_SOL = "ER3u3p9TGyA4Sc9VCJrkLq4hR73GFW8QAzYkkz8rSwsk"
 
     // RAY_USDC
-    // const POOL_ID = "ELSGBb45rAQNsMTVzwjUqL8vBophWhPn4rNbqwxenmqY"
+    const POOL_ID = "ELSGBb45rAQNsMTVzwjUqL8vBophWhPn4rNbqwxenmqY"
 
     const poolKeys = await fetchPoolKeys(connection, new PublicKey(POOL_ID))
+    
 
     await swap(connection, poolKeys, ownerKeypair, tokenAccounts)
 
-    // await addLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
+    await addLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
 
-    // await removeLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
+    await removeLiquidity(connection, poolKeys, ownerKeypair, tokenAccounts)
+
+    const fromPoolKeys = await fetchPoolKeys(connection, new PublicKey(FIDA_SOL))
+    const toPoolKeys = await fetchPoolKeys(connection, new PublicKey(SOL_USDT))
+
+    const FIDA_MINT_ID = fromPoolKeys.baseMint;
+    const USDC_MINT_ID = toPoolKeys.quoteMint;
+    const relatedPoolKeys = await getRouteRelated(connection, FIDA_MINT_ID, USDC_MINT_ID)
+
+    await routeSwap(connection, fromPoolKeys, toPoolKeys, ownerKeypair, tokenAccounts)
+
+    await tradeSwap(connection, FIDA_MINT_ID, USDC_MINT_ID, relatedPoolKeys, ownerKeypair, tokenAccounts)
 
 })()
