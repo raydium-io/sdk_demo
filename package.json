@@ -4,13 +4,16 @@
   "main": "src/swap.ts",
   "scripts": {
     "start": "ts-node src/demo_mainnet.ts",
-    "dev": "ts-node src/demo_devnet.ts"
+    "dev": "ts-node src/demo_devnet.ts",
+    "create": "ts-node src/create_pool_devnet.ts"
   },
   "author": "Carl",
   "license": "MIT",
   "dependencies": {
-    "@raydium-io/raydium-sdk": "^1.1.0-beta.0",
+    "@project-serum/serum-dev-tools": "^1.0.5",
+    "@raydium-io/raydium-sdk": "^1.1.0-beta.5",
     "@solana/web3.js": "^1.43.1",
+    "bn.js": "^5.2.1",
     "bs58": "^5.0.0",
     "node-fetch": "^3.2.4",
     "typescript": "^4.6.3"
