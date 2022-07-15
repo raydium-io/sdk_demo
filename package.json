@@ -5,7 +5,8 @@
   "scripts": {
     "start": "ts-node src/demo_mainnet.ts",
     "dev": "ts-node src/demo_devnet.ts",
-    "create": "ts-node src/create_pool_devnet.ts"
+    "create": "ts-node src/create_pool_devnet.ts",
+    "farm": "ts-node src/farm_devnet.ts"
   },
   "author": "Carl",
   "license": "MIT",
