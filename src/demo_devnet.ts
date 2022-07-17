@@ -5,8 +5,10 @@ import { Connection, Keypair, PublicKey,} from "@solana/web3.js";
 import bs58 from "bs58"
 
 import {fetchAllPoolKeys, fetchPoolKeys, getRouteRelated} from "./util_devnet"
-import { getTokenAccountsByOwner, swap, addLiquidity, removeLiquidity, routeSwap, tradeSwap } from "./util";
+import { getLiquidityInfo, getTokenAccountsByOwner, swap, addLiquidity, removeLiquidity, routeSwap, tradeSwap } from "./util";
 
+
+const SERUM_PROGRAM_ID_V3 = new PublicKey('DESVgJVGajEgKGXhb6XmqDHGz3VjdgP7rEVESBgxmroY')
 
 async function getAllAmmPools(connection: Connection){
   // get all pools
@@ -50,6 +52,21 @@ async function getAllAmmPools(connection: Connection){
 
     const poolKeys = await fetchPoolKeys(connection, new PublicKey(SOL_USDT))
     
+    const info = await getLiquidityInfo(connection, new PublicKey(POOL_ID), SERUM_PROGRAM_ID_V3)
+
+    // @ts-ignore
+    console.log("base Vault:", info.baseVaultKey.toBase58(), info.baseVaultBalance);
+    // @ts-ignore
+    console.log("quote Vault:", info.quoteVaultKey.toBase58(), info.quoteVaultBalance);
+  
+    // @ts-ignore
+    console.log(`openOrders Account ${info.openOrdersKey.toBase58()}, base Serum book total: ${info.openOrdersTotalBase},quote Serum book total: ${info.openOrdersTotalQuote} `)
+  
+      // @ts-ignore
+    console.log(`base pnl: ${info.basePnl }, quote pnl: ${info.quotePnl}` );
+
+    // @ts-ignore
+    console.log(`Final base:${info.base}, quote:${info.quote}, priceInQuote: ${info.priceInQuote}, lpSupply:${info.lpSupply}` )
 
     await swap(connection, poolKeys, ownerKeypair, tokenAccounts)
 

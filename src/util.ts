@@ -1,8 +1,8 @@
 
 import { Connection, Keypair, PublicKey, sendAndConfirmTransaction, Signer, SystemProgram, Transaction, TransactionInstruction,} from "@solana/web3.js";
 import { Token as SplToken, } from "@solana/spl-token"
-
-import {  TOKEN_PROGRAM_ID, SPL_ACCOUNT_LAYOUT,  TokenAccount, LiquidityPoolKeys, Liquidity, Route, Trade, TokenAmount, Token, Percent, Currency } from "@raydium-io/raydium-sdk";
+import { OpenOrders } from "@project-serum/serum"
+import { TOKEN_PROGRAM_ID, SPL_ACCOUNT_LAYOUT,  TokenAccount, LiquidityPoolKeys, Liquidity, Route, Trade, TokenAmount, Token, Percent, Currency, LIQUIDITY_STATE_LAYOUT_V4 } from "@raydium-io/raydium-sdk";
 
 export async function getTokenAccountsByOwner(
   connection: Connection,
@@ -341,4 +341,50 @@ export async function tradeSwap(connection: Connection, tokenInMint: PublicKey, 
   }
 
   console.log('trade swap end')
+}
+
+
+// @ts-nocheck
+export async function getLiquidityInfo(connection: Connection, poolId:PublicKey, dexProgramId:PublicKey){
+  const info = await connection.getAccountInfo(poolId);
+  if (info === null) return null
+  const state = LIQUIDITY_STATE_LAYOUT_V4.decode(info.data);
+
+  const baseTokenAmount = await connection.getTokenAccountBalance(state.baseVault);
+  const quoteTokenAmount = await connection.getTokenAccountBalance(state.quoteVault);
+  const openOrders = await OpenOrders.load(connection, state.openOrders, dexProgramId);
+
+  const baseDecimal = 10 ** state.baseDecimal.toNumber()
+  const quoteDecimal = 10 ** state.quoteDecimal.toNumber()
+
+  const openOrdersTotalBase = openOrders.baseTokenTotal.toNumber() / baseDecimal
+  const openOrdersTotalQuote = openOrders.quoteTokenTotal.toNumber() / quoteDecimal
+  
+  const basePnl = state.baseNeedTakePnl.toNumber() / baseDecimal
+  const quotePnl = state.quoteNeedTakePnl.toNumber() / quoteDecimal 
+
+  // @ts-ignore
+  const base = baseTokenAmount.value?.uiAmount + openOrdersTotalBase - basePnl
+
+  // @ts-ignore
+  const quote =  quoteTokenAmount.value?.uiAmount + openOrdersTotalQuote - quotePnl
+
+  const lpSupply =  parseFloat(state.lpReserve.toString())
+  const priceInQuote = quote / base 
+
+  return {
+    base,
+    quote,
+    lpSupply,
+    baseVaultKey: state.baseVault,
+    quoteVaultKey: state.quoteVault,
+    baseVaultBalance: baseTokenAmount.value.uiAmount,
+    quoteVaultBalance: quoteTokenAmount.value.uiAmount,
+    openOrdersKey: state.openOrders,
+    openOrdersTotalBase,
+    openOrdersTotalQuote,
+    basePnl,
+    quotePnl,
+    priceInQuote
+  }
 }
